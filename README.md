@@ -14,5 +14,7 @@ $ ./main
 
 For Zig:
 
+```
 $ cd zlox
 $ zig build run
+```
