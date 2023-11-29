@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include "common.h"
+#include "compiler.h"
 #include "vm.h"
 #include "debug.h"
 
@@ -27,10 +28,12 @@ static void resetStack(VM* vm) {
     vm->stackTop = vm->stack;
 }
 
-InterpretResult interpret(VM *vm, Chunk* chunk) {
-    vm->chunk = chunk;
-    vm->ip = vm->chunk->code;
-    return run(vm);
+InterpretResult interpret(VM *vm, const char* source) {
+    compile(source);
+    // vm->chunk = chunk;
+    // vm->ip = vm->chunk->code;
+    // return run(vm);
+    return INTERPRET_OK;
 }
 
 void negate(VM* vm) {
