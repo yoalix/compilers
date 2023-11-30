@@ -4,6 +4,7 @@ const OpCode = @import("chunk.zig").OpCode;
 const Value = @import("value.zig").Value;
 const value = @import("value.zig");
 const debug = @import("debug.zig");
+const compile = @import("compiler.zig").compile;
 
 const STACK_MAX = 256;
 
@@ -35,13 +36,15 @@ pub const VM = struct {
         _ = self;
     }
 
-    pub fn interpret(vm: *Self, chunk: *Chunk) InterpretResult {
-        vm.chunk = chunk;
+    pub fn interpret(vm: *Self, source: [:0]u8) !InterpretResult {
+        _ = vm;
+        try compile(source);
+        // vm.chunk = chunk;
         // if (not compile(vm, source)) {
         //     return InterpretResult.COMPILE_ERROR;
         // }
-        vm.ip = vm.chunk.code;
-        return vm.run();
+        // vm.ip = vm.chunk.code;
+        return InterpretResult.OK;
     }
 
     pub fn run(vm: *Self) InterpretResult {
