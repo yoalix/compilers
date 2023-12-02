@@ -29,11 +29,21 @@ static void resetStack(VM* vm) {
 }
 
 InterpretResult interpret(VM *vm, const char* source) {
-    compile(source);
-    // vm->chunk = chunk;
-    // vm->ip = vm->chunk->code;
-    // return run(vm);
-    return INTERPRET_OK;
+    Chunk chunk;
+    initChunk(&chunk);
+
+    if (!compile(source, &chunk)) {
+        freeChunk(&chunk);
+        return INTERPRET_COMPILE_ERROR;
+    }
+    
+    vm->chunk = &chunk;
+    vm->ip = vm->chunk->code;
+
+    InterpretResult result = run(vm);
+
+    freeChunk(&chunk);
+    return result;
 }
 
 void negate(VM* vm) {
