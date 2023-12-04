@@ -27,10 +27,16 @@ pub const ValueArray = struct {
     }
 
     pub fn writeValue(self: *Self, value: Value) void {
-        if (self.count + 1 > self.capacity) {
-            const newCapacity = memory.growCapacity(self.capacity);
+        if (self.count >= self.capacity) {
+            if (self.capacity == std.math.maxInt(u32)) {
+                @panic("Capacity overflow");
+            }
+            const newCapacity = memory.growCapacity(u32, self.capacity);
             self.values = memory.growArray(self.alloc, Value, self.values, self.capacity, newCapacity);
             self.capacity = newCapacity;
+        }
+        if (self.count == std.math.maxInt(usize)) {
+            @panic("Count overflow");
         }
         self.values[self.count] = value;
         self.count += 1;

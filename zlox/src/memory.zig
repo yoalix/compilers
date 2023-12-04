@@ -1,6 +1,6 @@
 const std = @import("std");
 
-pub inline fn growCapacity(capacity: anytype) @TypeOf(capacity) {
+pub inline fn growCapacity(comptime T: type, capacity: anytype) T {
     return if (capacity < 8) 8 else capacity * 2;
 }
 

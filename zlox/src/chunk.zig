@@ -46,18 +46,18 @@ pub const Chunk = struct {
     }
 
     pub fn write(self: *Self, byte: u8, line: u32) void {
-        if (self.count + 1 > self.capacity) {
+        if (self.count >= self.capacity) {
             var oldCapacity = self.capacity;
-            self.capacity = memory.growCapacity(self.capacity);
+            self.capacity = memory.growCapacity(u32, self.capacity);
             self.code = memory.growArray(self.alloc, u8, self.code, oldCapacity, self.capacity);
         }
 
         self.code[self.count] = byte;
         self.count += 1;
 
-        if (self.lineCount + 1 > self.linesCapacity) {
+        if (self.lineCount >= self.linesCapacity) {
             var oldCapacity = self.linesCapacity;
-            self.linesCapacity = memory.growCapacity(self.lineCount);
+            self.linesCapacity = memory.growCapacity(u32, self.lineCount);
             self.lines = memory.growArray(self.alloc, u32, self.lines, oldCapacity, self.linesCapacity);
             for (oldCapacity..self.linesCapacity) |i| {
                 self.lines[i] = 0;

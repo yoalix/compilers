@@ -4,7 +4,7 @@ const OpCode = @import("chunk.zig").OpCode;
 const Value = @import("value.zig").Value;
 const value = @import("value.zig");
 const debug = @import("debug.zig");
-const compile = @import("compiler.zig").compile;
+const Compiler = @import("compiler.zig").Compiler;
 
 const STACK_MAX = 256;
 
@@ -24,27 +24,26 @@ pub const VM = struct {
 
     pub fn init(alloc: std.mem.Allocator) Self {
         var vm = Self{ .alloc = alloc };
-        var chunk = Chunk.init(alloc);
-        vm.chunk = &chunk;
-        vm.ip = vm.chunk.code;
         vm.stack = vm.alloc.create([STACK_MAX]Value) catch std.os.exit(1);
         vm.resetStack();
         return vm;
     }
 
     pub fn deinit(self: *Self) void {
-        _ = self;
+        self.chunk.deinit();
     }
 
-    pub fn interpret(vm: *Self, source: [:0]u8) !InterpretResult {
-        _ = vm;
-        try compile(source);
-        // vm.chunk = chunk;
-        // if (not compile(vm, source)) {
-        //     return InterpretResult.COMPILE_ERROR;
-        // }
-        // vm.ip = vm.chunk.code;
-        return InterpretResult.OK;
+    pub fn interpret(vm: *Self, source: [:0]u8) InterpretResult {
+        var chunk = Chunk.init(vm.alloc);
+        var compiler = Compiler.init(source, &chunk);
+        if (!compiler.compile()) {
+            vm.deinit();
+            return InterpretResult.COMPILE_ERROR;
+        }
+        vm.chunk = &chunk;
+        vm.ip = vm.chunk.code;
+        var result = vm.run();
+        return result;
     }
 
     pub fn run(vm: *Self) InterpretResult {

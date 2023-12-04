@@ -80,7 +80,7 @@ fn repl(vm: *VM) !void {
             }
             source[list.len] = 0;
             // try stdout.print("{s}\n", .{source});
-            _ = try vm.interpret(source[0..list.len :0]);
+            _ = vm.interpret(source[0..list.len :0]);
 
             // If the user pressed Ctrl-C, then we'll get a null error
             // We'll just exit in that case
@@ -89,16 +89,22 @@ fn repl(vm: *VM) !void {
 }
 
 fn runFile(alloc: std.mem.Allocator, vm: *VM, path: []const u8) !void {
-    _ = vm;
     var source = try readFile(alloc, path);
-    _ = source;
-    // try vm.interpret(source);
+    defer alloc.free(source);
+    var result = vm.interpret(source);
+    switch (result) {
+        .OK => {},
+        .COMPILE_ERROR => std.os.exit(65),
+        .RUNTIME_ERROR => std.os.exit(70),
+    }
 }
 
-fn readFile(alloc: std.mem.Allocator, path: []const u8) ![]const u8 {
+fn readFile(alloc: std.mem.Allocator, path: []const u8) ![:0]u8 {
     var file = try std.fs.cwd().readFileAlloc(alloc, path, 1_000_000);
+    var source = file[0 .. file.len + 1];
+    source[file.len] = 0;
 
-    return file;
+    return source[0..file.len :0];
 }
 
 test "simple test" {

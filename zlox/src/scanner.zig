@@ -243,22 +243,12 @@ pub const Scanner = struct {
         while (true) {
             var c = self.peek();
             switch (c) {
-                ' ' => {
-                    _ = self.advance();
-                    break;
-                },
-                '\r' => {
-                    _ = self.advance();
-                    break;
-                },
-                '\t' => {
-                    _ = self.advance();
-                    break;
-                },
+                ' ' => _ = self.advance(),
+                '\r' => _ = self.advance(),
+                '\t' => _ = self.advance(),
                 '\n' => {
                     self.line += 1;
                     _ = self.advance();
-                    break;
                 },
                 '/' => {
                     if (self.peekNext() == '/') {
@@ -269,7 +259,6 @@ pub const Scanner = struct {
                     } else {
                         return;
                     }
-                    break;
                 },
                 else => return,
             }
