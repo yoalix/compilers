@@ -11,6 +11,9 @@ pub const OpCode = enum(u8) {
     OP_MULTIPLY,
     OP_DIVIDE,
     OP_CONSTANT,
+    OP_FALSE,
+    OP_TRUE,
+    OP_NIL,
     OP_RETURN,
 };
 

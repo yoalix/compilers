@@ -200,7 +200,7 @@ pub const Scanner = struct {
     }
 
     fn checkKeyword(self: *Self, start: u32, comptime length: u32, rest: *const [length:0]u8, tokenType: TokenType) TokenType {
-        if (std.mem.eql(u8, self.start[0..start], rest[0..length])) {
+        if (std.mem.eql(u8, self.start[start .. start + length], rest)) {
             return tokenType;
         }
         return TokenType.IDENTIFIER;

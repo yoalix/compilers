@@ -64,6 +64,9 @@ pub const VM = struct {
                     var constant = vm.readConstant();
                     vm.push(constant);
                 },
+                .OP_TRUE => vm.push(Value{ .boolean = true }),
+                .OP_FALSE => vm.push(Value{ .boolean = false }),
+                .OP_NIL => vm.push(Value{ .nil = undefined }),
                 .OP_NEGATE => vm.negate(),
                 .OP_ADD => vm.binaryOp(add),
                 .OP_SUBTRACT => vm.binaryOp(sub),
@@ -91,7 +94,7 @@ pub const VM = struct {
     inline fn binaryOp(vm: *Self, comptime op: fn (f64, f64) f64) void {
         var b = vm.pop();
         var a = vm.pop();
-        vm.push(op(a, b));
+        vm.push(Value{ .number = op(a.number, b.number) });
     }
 
     pub fn resetStack(self: *Self) void {
@@ -109,7 +112,16 @@ pub const VM = struct {
     }
 
     pub fn negate(self: *Self) void {
-        (self.stackTop - 1)[0] = -(self.stackTop - 1)[0];
+        (self.stackTop - 1)[0] = Value{ .number = -(self.stackTop - 1)[0].number };
+    }
+
+    fn runtimeError(self: *Self, comptime format: []const u8, args: anytype) void {
+        std.debug.panic(format, args);
+        std.debug.panic("\n", .{});
+        var instruction = self.ip - self.chunk.code - 1;
+        const line = self.chunk.getLine(instruction);
+        std.debug.panic("[line {}] in script\n", .{line});
+        self.resetStack();
     }
 };
 

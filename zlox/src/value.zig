@@ -1,10 +1,47 @@
 const std = @import("std");
 const memory = @import("./memory.zig");
 
-pub const Value = f64;
+pub const EnumValues = enum {
+    number,
+    boolean,
+    nil,
+};
+
+pub const Value = union(EnumValues) {
+    const Self = @This();
+
+    number: f64,
+    boolean: bool,
+    nil: void,
+
+    pub fn isNumber(self: Self) bool {
+        return @TypeOf(self) == Self.number;
+    }
+
+    pub fn isBoolean(self: Self) bool {
+        return @TypeOf(self) == Self.boolean;
+    }
+
+    pub fn isNil(self: Self) bool {
+        return @TypeOf(self) == Self.nil;
+    }
+};
+pub fn valuesEquals(a: Value, b: Value) bool {
+    if (@TypeOf(a) != @TypeOf(b)) return false;
+    switch (a) {
+        .number => a == b,
+        .boolean => a == b,
+        .nil => true,
+        else => false,
+    }
+}
 
 pub fn printValue(value: Value) void {
-    std.debug.print("{d}", .{value});
+    switch (value) {
+        .number => std.debug.print("{d}", .{value.number}),
+        .boolean => std.debug.print("{}", .{value.boolean}),
+        .nil => std.debug.print("nil", .{}),
+    }
 }
 
 pub const ValueArray = struct {

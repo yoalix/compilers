@@ -113,7 +113,17 @@ pub const Compiler = struct {
             self.compilerError("Invalid character in number.");
             return;
         };
-        self.emitConstant(value);
+        self.emitConstant(Value{ .number = value });
+    }
+
+    fn literal(self: *Self) void {
+        var operatorType = self.previous.type;
+        switch (operatorType) {
+            .FALSE => self.emitByte(@intFromEnum(OpCode.OP_FALSE)),
+            .TRUE => self.emitByte(@intFromEnum(OpCode.OP_TRUE)),
+            .NIL => self.emitByte(@intFromEnum(OpCode.OP_NIL)),
+            else => unreachable,
+        }
     }
 
     fn unary(self: *Self) void {
@@ -159,7 +169,7 @@ pub const Compiler = struct {
         self.emitByte(@intFromEnum(OpCode.OP_RETURN));
     }
 
-    fn emitConstant(self: *Self, value: f64) void {
+    fn emitConstant(self: *Self, value: Value) void {
         self.emitBytes(@intFromEnum(OpCode.OP_CONSTANT), self.makeConstant(value));
     }
 
@@ -228,16 +238,16 @@ const rules: [@intFromEnum(TokenType.EOF) + 1]Rule = blk: {
     tmp[@intFromEnum(TokenType.NUMBER)] = Rule{ .prefix = Compiler.number, .infix = null, .precedence = Precedence.NONE };
     tmp[@intFromEnum(TokenType.AND)] = Rule{ .prefix = null, .infix = null, .precedence = Precedence.NONE };
     tmp[@intFromEnum(TokenType.ELSE)] = Rule{ .prefix = null, .infix = null, .precedence = Precedence.NONE };
-    tmp[@intFromEnum(TokenType.FALSE)] = Rule{ .prefix = null, .infix = null, .precedence = Precedence.NONE };
+    tmp[@intFromEnum(TokenType.FALSE)] = Rule{ .prefix = Compiler.literal, .infix = null, .precedence = Precedence.NONE };
     tmp[@intFromEnum(TokenType.FOR)] = Rule{ .prefix = null, .infix = null, .precedence = Precedence.NONE };
     tmp[@intFromEnum(TokenType.FN)] = Rule{ .prefix = null, .infix = null, .precedence = Precedence.NONE };
     tmp[@intFromEnum(TokenType.IF)] = Rule{ .prefix = null, .infix = null, .precedence = Precedence.NONE };
-    tmp[@intFromEnum(TokenType.NIL)] = Rule{ .prefix = null, .infix = null, .precedence = Precedence.NONE };
+    tmp[@intFromEnum(TokenType.NIL)] = Rule{ .prefix = Compiler.literal, .infix = null, .precedence = Precedence.NONE };
     tmp[@intFromEnum(TokenType.OR)] = Rule{ .prefix = null, .infix = null, .precedence = Precedence.NONE };
     tmp[@intFromEnum(TokenType.PRINT)] = Rule{ .prefix = null, .infix = null, .precedence = Precedence.NONE };
     tmp[@intFromEnum(TokenType.RETURN)] = Rule{ .prefix = null, .infix = null, .precedence = Precedence.NONE };
     tmp[@intFromEnum(TokenType.STRUCT)] = Rule{ .prefix = null, .infix = null, .precedence = Precedence.NONE };
-    tmp[@intFromEnum(TokenType.TRUE)] = Rule{ .prefix = null, .infix = null, .precedence = Precedence.NONE };
+    tmp[@intFromEnum(TokenType.TRUE)] = Rule{ .prefix = Compiler.literal, .infix = null, .precedence = Precedence.NONE };
     tmp[@intFromEnum(TokenType.VAR)] = Rule{ .prefix = null, .infix = null, .precedence = Precedence.NONE };
     tmp[@intFromEnum(TokenType.WHILE)] = Rule{ .prefix = null, .infix = null, .precedence = Precedence.NONE };
     tmp[@intFromEnum(TokenType.ERROR)] = Rule{ .prefix = null, .infix = null, .precedence = Precedence.NONE };

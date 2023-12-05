@@ -25,6 +25,9 @@ pub fn disassembleInstruction(chunk: *Chunk, offset: u32) u32 {
     return switch (instruction) {
         .OP_RETURN => simpleInstruction("OP_RETURN", offset),
         .OP_CONSTANT => constantInstruction("OP_CONSTANT", chunk, offset),
+        .OP_TRUE => simpleInstruction("OP_TRUE", offset),
+        .OP_FALSE => simpleInstruction("OP_FALSE", offset),
+        .OP_NIL => simpleInstruction("OP_NIL", offset),
         .OP_ADD => simpleInstruction("OP_ADD", offset),
         .OP_SUBTRACT => simpleInstruction("OP_SUBTRACT", offset),
         .OP_MULTIPLY => simpleInstruction("OP_MULTIPLY", offset),
